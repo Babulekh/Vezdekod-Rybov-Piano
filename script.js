@@ -1,25 +1,88 @@
-const whiteKeyCodes = ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight"];
+//Data
+const whiteKeyCodes = ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight", "KeyA", "KeyS"];
 const blackKeyCodes = ["Digit2", "Digit3", "Digit5", "Digit6", "Digit7", "Digit9", "Digit0", "Equal"];
-const whiteKeyNotes = ["Piano.ff.C3", "Piano.ff.D3", "Piano.ff.E3", "Piano.ff.F3", "Piano.ff.G3", "Piano.ff.A3", "Piano.ff.B3", "Piano.ff.C4", "Piano.ff.D4", "Piano.ff.E4", "Piano.ff.F4", "Piano.ff.G4"];
-const blackKeyNotes = ["Piano.ff.Db3", "Piano.ff.Eb3", "Piano.ff.Gb3", "Piano.ff.Ab3", "Piano.ff.Bb3", "Piano.ff.Db4", "Piano.ff.Eb4", "Piano.ff.Gb4"];
+const whiteKeyNotes = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "B4"];
+const blackKeyNotes = ["Db3", "Eb3", "Gb3", "Ab3", "Bb3", "Db4", "Eb4", "Gb4", "Ab4", "Bb4"];
+let melodySrc = "psk.xml";
+let xmldoc;
 
+//Ui
 const whiteKeys = document.querySelectorAll(".whiteKey");
 const blackKeys = document.querySelectorAll(".blackKey");
 
-const pianoKeys = [];
+const playBackButton = document.querySelector(".playBackButton");
 
-class pianoKey {
-    constructor(DOMObject, code, sound, category) {
-        this.DOMObject = DOMObject;
-        this.code = code;
-        this.sound = new Audio("./sounds/" + sound + ".mp3");
+//Piano and keys classes
+class Piano {
+    constructor(whiteKeyCodes, blackKeyCodes, whiteKeyNotes, blackKeyNotes) {
+        this.pianoKeys = [];
+        this.currentIndex = 0;
+        this.timer;
 
-        this.DOMObject.addEventListener("mousedown", this.pianoKeyPressed.bind(this));
-        this.DOMObject.addEventListener("mouseup", this.pianoKeyReleased.bind(this));
+        for (let wki = 0; wki < whiteKeys.length; wki++) {
+            let key = new pianoKey(whiteKeys[wki], whiteKeyCodes[wki], whiteKeyNotes[wki]);
+            this.pianoKeys.push(key);
+        };
+
+        for (let bki = 0; bki < blackKeys.length; bki++) {
+            let key = new pianoKey(blackKeys[bki], blackKeyCodes[bki], blackKeyNotes[bki]);
+            this.pianoKeys.push(key);
+        };
     };
 };
 
+Piano.prototype.startPlayback = function () {
+    let sequence = xmldoc.querySelectorAll("measure");
+    let melody = [];
+
+    for (let beat of sequence) {
+        let notes = beat.querySelectorAll("note pitch");
+
+        for (let note of notes) {
+            let key = this.pianoKeys.find((element) => {
+                return String(note.querySelector("step").innerHTML) + String(note.querySelector("octave").innerHTML) == element.note;
+            });
+
+            melody.push(this.pianoKeys.indexOf(key));
+        };
+    };
+
+    this.timer = setInterval(() => {
+        this.playNote(melody);
+    }, 300);
+};
+
+Piano.prototype.playNote = function(melody) {
+    if(this.currentIndex == melody.length) {
+        this.currentIndex = 0;
+        clearInterval(this.timer);
+        playBackButton.removeAttribute("disabled");
+        return;
+    }
+
+    let key = this.pianoKeys[melody[this.currentIndex]];
+
+    key.pianoKeyPressed();
+    setTimeout(key.pianoKeyReleased.bind(key), 298);
+
+    this.currentIndex++;
+};
+
+class pianoKey {
+    constructor(DOMObject, code, sound) {
+        this.DOMObject = DOMObject;
+        this.code = code;
+        this.sound = new Audio("./sounds/Piano.ff." + sound + ".mp3");
+        this.note = sound;
+
+        this.DOMObject.addEventListener("mousedown", this.pianoKeyPressed.bind(this));
+        this.DOMObject.addEventListener("mouseup", this.pianoKeyReleased.bind(this));
+    }
+}
+
 pianoKey.prototype.pianoKeyPressed = function () {
+    if (this.DOMObject.classList.contains("active")) return;
+
     this.DOMObject.classList.add("active");
     this.sound.currentTime = 0;
     this.sound.play();
@@ -27,27 +90,43 @@ pianoKey.prototype.pianoKeyPressed = function () {
 
 pianoKey.prototype.pianoKeyReleased = function () {
     this.DOMObject.classList.remove("active");
-    // this.sound.pause();
 };
 
-for (let wki = 0; wki < whiteKeys.length; wki++) {
-    let key = new pianoKey(whiteKeys[wki], whiteKeyCodes[wki], whiteKeyNotes[wki]);
-    pianoKeys.push(key);
-};
+let piano = new Piano(whiteKeyCodes, blackKeyCodes, whiteKeyNotes, blackKeyNotes);
 
-for (let bki = 0; bki < blackKeys.length; bki++) {
-    let key = new pianoKey(blackKeys[bki], blackKeyCodes[bki], blackKeyNotes[bki]);
-    pianoKeys.push(key);
-};
-
+//Ui bindings
 function keyboardKeyPressed(event) {
     if (event.repeat) return;
-    pianoKeys.find(element => {return event.code == element.code;})?.pianoKeyPressed();
-};
+    piano.pianoKeys
+        .find((element) => {
+            return event.code == element.code;
+        })
+        ?.pianoKeyPressed();
+}
 
 function keyboardKeyReleased(event) {
-    pianoKeys.find(element => {return event.code == element.code;})?.pianoKeyReleased();
-};
+    piano.pianoKeys
+        .find((element) => {
+            return event.code == element.code;
+        })
+        ?.pianoKeyReleased();
+}
 
 window.addEventListener("keydown", keyboardKeyPressed);
 window.addEventListener("keyup", keyboardKeyReleased);
+
+function parseXML(event) {
+    event.currentTarget.setAttribute("disabled", "");
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", melodySrc);
+    xhr.send();
+
+    xhr.onload = () => {
+        let parser = new DOMParser();
+        xmldoc = parser.parseFromString(xhr.responseText, "text/xml");
+        piano.startPlayback();
+    };
+}
+
+playBackButton.addEventListener("click", parseXML);

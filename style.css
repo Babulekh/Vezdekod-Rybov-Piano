@@ -2,7 +2,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    color:red;
 }
 
 .app {
@@ -20,8 +19,6 @@
 }
 
 .pianoKey {
-    display: flex;
-    align-items: flex-end;
     height: 100%;
     transition: background .1s ease;
 }
@@ -30,7 +27,7 @@
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(14, 1fr);
 }
 
 .whiteKey {
@@ -42,7 +39,7 @@
     width: 100%;
     height: 66%;
     display: grid;
-    grid-template-columns: repeat(36, 1fr);
+    grid-template-columns: repeat(42, 1fr);
     position: absolute;
     top: 0;
 }
@@ -81,6 +78,14 @@
 
 .blackKey:nth-child(8) {
     grid-column: 33/35;
+}
+
+.blackKey:nth-child(9) {
+    grid-column: 36/38;
+}
+
+.blackKey:nth-child(10) {
+    grid-column: 39/41;
 }
 
 .whiteKey.active {
