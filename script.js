@@ -6,6 +6,7 @@ const blackKeyNotes = ["Db3", "Eb3", "Gb3", "Ab3", "Bb3", "Db4", "Eb4", "Gb4", "
 let melodySrc = "melody.xml";
 let xmldoc;
 
+
 //Ui
 const whiteKeys = document.querySelectorAll(".whiteKey");
 const blackKeys = document.querySelectorAll(".blackKey");
