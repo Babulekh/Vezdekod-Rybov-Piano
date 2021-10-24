@@ -8,12 +8,13 @@
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
 .piano {
-    width: 720px;
+    width: 800px;
     height: 300px;
     position: relative;
 }
@@ -27,7 +28,7 @@
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: repeat(14, 1fr);
+    grid-template-columns: repeat(15, 1fr);
 }
 
 .whiteKey {
@@ -39,7 +40,7 @@
     width: 100%;
     height: 66%;
     display: grid;
-    grid-template-columns: repeat(42, 1fr);
+    grid-template-columns: repeat(45, 1fr);
     position: absolute;
     top: 0;
 }
