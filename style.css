@@ -50,43 +50,43 @@
 }
 
 .blackKey:nth-child(1) {
-    grid-column: 3/5;
-}
-
-.blackKey:nth-child(2) {
     grid-column: 6/8;
 }
 
-.blackKey:nth-child(3) {
-    grid-column: 12/14;
+.blackKey:nth-child(2) {
+    grid-column: 9/11;
 }
 
-.blackKey:nth-child(4) {
+.blackKey:nth-child(3) {
     grid-column: 15/17;
 }
 
-.blackKey:nth-child(5) {
+.blackKey:nth-child(4) {
     grid-column: 18/20;
 }
 
-.blackKey:nth-child(6) {
-    grid-column: 24/26;
+.blackKey:nth-child(5) {
+    grid-column: 21/23;
 }
 
-.blackKey:nth-child(7) {
+.blackKey:nth-child(6) {
     grid-column: 27/29;
 }
 
-.blackKey:nth-child(8) {
-    grid-column: 33/35;
+.blackKey:nth-child(7) {
+    grid-column: 30/32;
 }
 
-.blackKey:nth-child(9) {
+.blackKey:nth-child(8) {
     grid-column: 36/38;
 }
 
-.blackKey:nth-child(10) {
+.blackKey:nth-child(9) {
     grid-column: 39/41;
+}
+
+.blackKey:nth-child(10) {
+    grid-column: 42/44;
 }
 
 .whiteKey.active {
