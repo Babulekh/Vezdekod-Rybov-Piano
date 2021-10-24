@@ -96,3 +96,7 @@
 .blackKey.active {
     background: rgb(73, 73, 73);
 }
+
+.pianoRollTile {
+    position: fixed;
+}

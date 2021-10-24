@@ -49,30 +49,48 @@ Piano.prototype.startPlayback = function () {
 
             let duration = note.parentNode.querySelector("duration").innerHTML;
 
-            if (duration < 100) {
-                duration *= 10;
-            }
             this.melody.push({ keyIndex: this.pianoKeys.indexOf(key), duration: (duration / 240) * this.noteDuration });
         }
     }
 
-    this.timer = setInterval(() => {
-        this.playNote();
-    }, this.noteDuration);
+    this.playNote();
 };
 
 Piano.prototype.startPianoRoll = function () {
     let sequence = xmldoc.querySelectorAll("measure");
     this.noteDuration = 60000 / Number(xmldoc.querySelector("per-minute").innerHTML);
     this.melody = [];
+
+    for (let beat of sequence) {
+        let notes = beat.querySelectorAll("note pitch");
+
+        for (let note of notes) {
+            let key = this.pianoKeys.find((element) => {
+                return String(note.querySelector("step").innerHTML) + String(note.querySelector("octave").innerHTML) == element.note;
+            });
+
+            let duration = note.parentNode.querySelector("duration").innerHTML;
+
+            if (duration < 100) {
+                duration *= 10;
+            }
+
+            this.melody.push({ keyIndex: this.pianoKeys.indexOf(key), duration: (duration / 240) * this.noteDuration });
+        }
+    }
+
+    this.pianoRollTick();
 };
 
 Piano.prototype.playNote = function () {
     if (this.currentNote == this.melody.length) {
-        this.currentIndex = 0;
-        clearInterval(this.timer);
+        this.currentNote = 0;
         playBackButton.removeAttribute("disabled");
         return;
+    }
+
+    if (this.melody[this.currentNote]["duration"] < 100) {
+        this.melody[this.currentNote]["duration"] *= 10;
     }
 
     let key = this.pianoKeys[this.melody[this.currentNote]["keyIndex"]];
@@ -80,6 +98,28 @@ Piano.prototype.playNote = function () {
 
     key.pianoKeyPressed(duration);
     setTimeout(key.pianoKeyReleased.bind(key), this.melody[this.currentNote]["duration"]);
+    setTimeout(this.playNote.bind(this), this.melody[this.currentNote]["duration"]);
+
+    this.currentNote++;
+};
+
+Piano.prototype.pianoRollTick = function () {
+    if (this.currentNote == this.melody.length) {
+        this.currentNote = 0;
+        pianoRollButton.removeAttribute("disabled");
+        return;
+    }
+
+    if (this.melody[this.currentNote]["duration"] < 100) {
+        this.melody[this.currentNote]["duration"] *= 10;
+    }
+
+    let key = this.pianoKeys[this.melody[this.currentNote]["keyIndex"]];
+    let duration = this.melody[this.currentNote]["duration"];
+
+    key.pianoKeyPressed(duration);
+    setTimeout(key.pianoKeyReleased.bind(key), this.melody[this.currentNote]["duration"]);
+    setTimeout(this.playNote.bind(this), 10);
 
     this.currentNote++;
 };
